@@ -6,8 +6,8 @@ on:
 
 env:
   AWS_REGION: eu-north-1
-  ECR_REPOSITORY: d
-  EKS_CLUSTER_NAME: nome-do-cluster
+  ECR_REPOSITORY: comercial-k8s-apps
+  EKS_CLUSTER_NAME: eks-commercial-study
   IMAGE_TAG: ${{ github.sha }}
 
 permissions:
@@ -19,43 +19,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
+      - name: Code checkout
         uses: actions/checkout@v4
 
-      - name: Configurar credenciais AWS (OIDC)
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::<account_id>:role/github-actions-eks-role
+          role-to-assume: arn:aws:iam::547320736290:role/github-actions-cicd-role
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login no Amazon ECR
+      - name: Login on Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag e push da imagem
+      - name: Build, tag & push of image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./App
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Atualizar kubeconfig
+      - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
 
-      - name: Atualizar imagem no manifesto
+      - name: Update image in manifest
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          sed -i "s|image:.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|" k8s/deployment.yaml
+          sed -i "s|image:.*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|" manifests/deployment.yaml
 
-      - name: Aplicar manifestos no EKS
+      - name: Apply manifest to EKS
         run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+          kubectl apply -f manifests/deployment.yaml
+          kubectl apply -f manifests/service.yaml
 
-      - name: Verificar rollout
+      - name: Verify rollout
         run: |
-          kubectl rollout status deployment/minha-app --timeout=120s
+          kubectl rollout status deployment/my-app --timeout=120s

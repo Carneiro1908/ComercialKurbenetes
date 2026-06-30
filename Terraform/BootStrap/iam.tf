@@ -103,10 +103,10 @@ resource "aws_iam_role_policy" "github_actions_permissions" {
           "iam:TagPolicy",
           "iam:ListPolicyVersions",
           "iam:ListInstanceProfilesForRole",
-          "iam:CreateOpenIDConnectProvider", # Added: Required for EKS Service Accounts (IRSA)
-          "iam:DeleteOpenIDConnectProvider", # Added: Required for OIDC provider teardown
-          "iam:GetOpenIDConnectProvider",    # Added: Required to verify OIDC status
-          "iam:TagOpenIDConnectProvider"     # Added: Required to track OIDC resources
+          "iam:CreateOpenIDConnectProvider", 
+          "iam:DeleteOpenIDConnectProvider", 
+          "iam:GetOpenIDConnectProvider",   
+          "iam:TagOpenIDConnectProvider"    
         ]
       },
       {
@@ -145,8 +145,11 @@ resource "aws_iam_role_policy" "github_actions_permissions" {
           "ecr:TagResource",
           "ecr:UntagResource",
           "ecr:ListTagsForResource",
-          "ecr:SetRepositoryPolicy",       # Added: Required if managing container access policies
-          "ecr:GetRepositoryPolicy"        # Added: Required to inspect repository access
+          "ecr:SetRepositoryPolicy",      
+          "ecr:GetRepositoryPolicy",        
+          "ecr:PutLifecyclePolicy",      
+          "ecr:GetLifecyclePolicy",      
+          "ecr:DeleteLifecyclePolicy"
         ]
       },
       {
