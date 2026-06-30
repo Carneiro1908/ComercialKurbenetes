@@ -67,28 +67,23 @@ jobs:
           kubectl get pods
           kubectl get services
 
-      # Novo passo para capturar o motivo do CrashLoopBackOff antes que o timeout aconteça
       - name: Inspect App Container Logs
         run: |
           echo "=== LATEST APPLICATION LOGS (CRASH INSPECTION) ==="
-          # Tenta buscar os logs dos pods atuais para expor falhas no código/ambiente
           kubectl logs deployment/my-app --all-containers=true --tail=50 || echo "No active or historical logs could be pulled yet."
 
       - name: Verify rollout
-        id: verify_out  # IDs usam underscore '_' no GitHub Actions, evite hífens se for ler o .outcome
+        id: verify_out  
         run: |
           kubectl rollout status deployment/my-app --timeout=300s
 
-      # Este bloco só rodará se o 'Verify rollout' acima falhar por timeout
+      - name: Get Web App Public URL
+        run: |
+          sleep 10 
+          kubectl get service my-app
+
       - name: Post-Failure Deep Diagnostics
         if: failure() && steps.verify_out.outcome == 'failure'
         run: |
-          echo "========================================================"
-          echo "❌ Deployment failed! Starting automatic diagnostics..."
-          echo "========================================================"
-          
-          echo -e "\n📋 [1/2] DEPLOYMENT DETAILS AND EVENTS:"
           kubectl describe deployment/my-app
-          
-          echo -e "\n🚨 [2/2] RECENT CLUSTER EVENTS:"
           kubectl get events --sort-by='.metadata.creationTimestamp' | tail -n 25
