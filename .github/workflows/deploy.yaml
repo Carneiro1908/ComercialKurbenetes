@@ -75,13 +75,13 @@ jobs:
           kubectl logs deployment/my-app --all-containers=true --tail=50 || echo "No active or historical logs could be pulled yet."
 
       - name: Verify rollout
-        id: verify_rollout  # IDs usam underscore '_' no GitHub Actions, evite hífens se for ler o .outcome
+        id: verify_out  # IDs usam underscore '_' no GitHub Actions, evite hífens se for ler o .outcome
         run: |
           kubectl rollout status deployment/my-app --timeout=120s
 
       # Este bloco só rodará se o 'Verify rollout' acima falhar por timeout
       - name: Post-Failure Deep Diagnostics
-        if: failure() && steps.verify_rollout.outcome == 'failure'
+        if: failure() && steps.verify_out.outcome == 'failure'
         run: |
           echo "========================================================"
           echo "❌ Deployment failed! Starting automatic diagnostics..."
