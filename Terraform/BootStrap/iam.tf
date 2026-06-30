@@ -89,6 +89,7 @@ resource "aws_iam_role_policy" "github_actions_permissions" {
           "iam:GetRole",
           "iam:AttachRolePolicy",
           "iam:DetachRolePolicy",
+          "iam:GetRolePolicy",
           "iam:PutRolePolicy",
           "iam:DeleteRolePolicy",
           "iam:PassRole",
@@ -116,7 +117,11 @@ resource "aws_iam_role_policy" "github_actions_permissions" {
           "s3:ListBucket",
           "s3:GetObject",
           "s3:PutObject",
-          "s3:DeleteObject"
+          "s3:DeleteObject",
+          "s3:GetBucketVersioning",         
+          "s3:GetEncryptionConfiguration",  
+          "s3:GetBucketPublicAccessBlock",  
+          "s3:GetBucketPolicy"  
         ]
         Resource = [
           "arn:aws:s3:::comercial-k8s-protected-storage-tomas-2026",
@@ -130,7 +135,8 @@ resource "aws_iam_role_policy" "github_actions_permissions" {
         Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
-          "dynamodb:DeleteItem"
+          "dynamodb:DeleteItem",
+          "dynamodb:DescribeTable" 
         ]
       },
       {
