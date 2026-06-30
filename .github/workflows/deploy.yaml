@@ -5,8 +5,8 @@ on:
     
 
 env:
-  AWS_REGION: eu-west-1
-  ECR_REPOSITORY: minha-app
+  AWS_REGION: eu-north-1
+  ECR_REPOSITORY: d
   EKS_CLUSTER_NAME: nome-do-cluster
   IMAGE_TAG: ${{ github.sha }}
 
