@@ -78,4 +78,18 @@ jobs:
     # 4. Runs if "Execute: Terraform Destroy" checkbox is checked
     - name: Terraform Destroy
       if: ${{ github.event.inputs.run_destroy == 'true' }}
-      run: terraform destroy -auto-approve -input=false
+      run: |
+
+        CLUSTER_NAME="eks-commercial-study"
+
+        aws eks update-kubeconfig --name "$CLUSTER_NAME" --region eu-north-1
+
+        kubectl get nodes
+
+        kubectl delete svc --all-namespaces --field-selector spec.type=LoadBalancer --all --wait=true
+        kubectl delete ingress --all --all-namespaces --wait=true
+
+        echo "Waiting for Load Balancers to be deleted..."
+        sleep 120
+
+        terraform destroy -auto-approve -input=false

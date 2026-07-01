@@ -334,6 +334,43 @@ resource "aws_iam_role_policy" "github_actions_permissions" {
           "eks:DescribeCluster",
           "eks:ListClusters"
         ]
+      },
+      {
+        Sid      = "ECRForceDelete"
+        Effect   = "Allow"
+        Resource = "*"
+        Action = [
+          "ecr:ListImages",
+          "ecr:BatchDeleteImage",
+          "ecr:DeleteRepository",
+          "ecr:DescribeRepositories"
+        ]
+      },
+      {
+        Sid      = "ENIAndEIPCleanup"
+        Effect   = "Allow"
+        Resource = "*"
+        Action = [
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DetachNetworkInterface",
+          "ec2:DescribeAddresses",
+          "ec2:DisassociateAddress",
+          "ec2:ReleaseAddress"
+        ]
+      },
+      {
+        Sid      = "LoadBalancerCleanup"
+        Effect   = "Allow"
+        Resource = "*"
+        Action = [
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:DescribeListeners",
+          "elasticloadbalancing:DeleteListener"
+        ]
       }
     ]
   })

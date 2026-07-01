@@ -2,6 +2,7 @@
 resource "aws_ecr_repository" "protected_ecr" {
   name                 = "comercial-k8s-apps" # Name of your container repository
   image_tag_mutability = "MUTABLE"            # or IMMUTABLE if you want to prevent overwriting tags (e.g., 'latest')
+  force_delete         = true                 # Allows deletion of the repository even if it contains images
 
   # 1. Continuous Vulnerability Scanning (Crucial for DevSecOps)
   image_scanning_configuration {
