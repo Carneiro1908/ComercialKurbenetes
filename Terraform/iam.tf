@@ -94,7 +94,7 @@ resource "aws_iam_role_policy_attachment" "attach_eks_describe_access" {
 
 # Create an access entry for the GitHub Actions role in the EKS cluster
 resource "aws_eks_access_entry" "github_actions" {
-  cluster_name  = module.eks.cluster_id
+  cluster_name  = module.eks.cluster_name
   principal_arn = "arn:aws:iam::547320736290:role/github-actions-cicd-role"
 }
 

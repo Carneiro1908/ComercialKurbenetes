@@ -2,7 +2,7 @@ resource "kubernetes_namespace_v1" "prometheus" {
   metadata { name = "prometheus" }
 }
 
-resource "kubernetes_service_account" "amp_ingest" {
+resource "kubernetes_service_account_v1" "amp_ingest" {
   metadata {
     name      = "amp-ingest"
     namespace = kubernetes_namespace_v1.prometheus.metadata[0].name
@@ -24,7 +24,7 @@ resource "helm_release" "kube_prometheus_stack" {
       prometheus = {
         serviceAccount = {
           create = false
-          name   = kubernetes_service_account.amp_ingest.metadata[0].name
+          name   = kubernetes_service_account_v1.amp_ingest.metadata[0].name
         }
         prometheusSpec = {
           remoteWrite = [{
