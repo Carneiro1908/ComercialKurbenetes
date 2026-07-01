@@ -100,7 +100,7 @@ resource "aws_eks_access_entry" "github_actions" {
 
 # Associate the AmazonEKSClusterAdminPolicy with the GitHub Actions role for full admin access to the EKS cluster
 resource "aws_eks_access_policy_association" "github_actions_admin" {
-  cluster_name  = "eks-commercial-study"  
+  cluster_name  = module.eks.cluster_name
   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
   principal_arn = "arn:aws:iam::547320736290:role/github-actions-cicd-role"
 
@@ -109,31 +109,3 @@ resource "aws_eks_access_policy_association" "github_actions_admin" {
   }
 }
 
-# AMP rules
-data "aws_iam_policy_document" "amp_irsa_assume" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-
-    principals {
-      type        = "Federated"
-      identifiers = [module.eks.oidc_provider_arn] 
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "${module.eks.oidc_provider}:sub"
-      values   = ["system:serviceaccount:prometheus:amp-ingest"]
-    }
-  }
-}
-
-resource "aws_iam_role" "amp_ingest" {
-  name               = "amp-ingest-role"
-  assume_role_policy = data.aws_iam_policy_document.amp_irsa_assume.json
-}
-
-resource "aws_iam_role_policy_attachment" "amp_ingest" {
-  role       = aws_iam_role.amp_ingest.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess"
-}

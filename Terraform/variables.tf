@@ -15,3 +15,9 @@ variable "account_id" {
   type        = string
   default     = "547320736290"
 }
+
+variable "grafana_admin_password" {
+  description = "The admin password for Grafana (used in the kube-prometheus-stack Helm chart)"
+  type        = string
+  sensitive   = true
+}

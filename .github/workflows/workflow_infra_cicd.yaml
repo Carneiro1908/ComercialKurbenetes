@@ -1,5 +1,4 @@
 name: "Terraform Infrastructure CI/CD"
-
 # Trigger configured for manual activation with independent boolean inputs
 on:
   workflow_dispatch:
@@ -29,54 +28,69 @@ permissions:
   id-token: write
   contents: read
 
+concurrency:
+  group: terraform-infra
+  cancel-in-progress: false
+
 jobs:
   terraform:
     name: "Terraform Operations"
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./Terraform
+    env:
+      TF_VAR_grafana_admin_password: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+      AWS_REGION: eu-central-1
+      CLUSTER_NAME: eks-commercial-study
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: "1.5.7"
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::547320736290:role/github-actions-infra-role
-        aws-region: eu-central-1
-        audience: sts.amazonaws.com
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::547320736290:role/github-actions-infra-role
+          aws-region: eu-central-1
+          audience: sts.amazonaws.com
 
-    - name: Terraform Init
-      run: terraform init
+      - name: Terraform Init
+        run: terraform init
 
-    - name: Terraform Validate
-      run: terraform validate
+      - name: Terraform Validate
+        run: terraform validate
 
-    # 1. Runs if "Execute: Terraform Plan" checkbox is checked
-    - name: Terraform Plan
-      if: ${{ github.event.inputs.run_plan == 'true' }}
-      run: terraform plan -input=false
+      # 1. Runs if "Execute: Terraform Plan" checkbox is checked
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.run_plan == 'true' }}
+        run: terraform plan -input=false
 
-    # 2. Runs if "Execute: Terraform Apply" checkbox is checked
-    - name: Terraform Apply
-      if: ${{ github.event.inputs.run_apply == 'true' }}
-      run: terraform apply -auto-approve -input=false
+      # 2. Runs if "Execute: Terraform Apply" checkbox is checked
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.run_apply == 'true' }}
+        run: terraform apply -auto-approve -input=false
 
-    # 3. Runs if "Execute: Terraform Plan Destroy" checkbox is checked
-    - name: Terraform Plan Destroy
-      if: ${{ github.event.inputs.run_plan_destroy == 'true' }}
-      run: terraform plan -destroy -input=false
+      # 3. Runs if "Execute: Terraform Plan Destroy" checkbox is checked
+      - name: Terraform Plan Destroy
+        if: ${{ github.event.inputs.run_plan_destroy == 'true' }}
+        run: terraform plan -destroy -input=false
 
-    # 4. Runs if "Execute: Terraform Destroy" checkbox is checked
-    - name: Terraform Destroy
-      if: ${{ github.event.inputs.run_destroy == 'true' }}
-      run: |
-        terraform destroy -auto-approve -input=false
+      # 4. Runs if "Execute: Terraform Destroy" checkbox is checked
+      - name: Clean up Kubernetes LoadBalancers before destroy
+        if: ${{ github.event.inputs.run_destroy == 'true' }}
+        run: |
+          if aws eks describe-cluster --name "$CLUSTER_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
+            echo "Cluster found. Cleaning up LoadBalancer services before destroy..."
+            aws eks update-kubeconfig --name "$CLUSTER_NAME" --region "$AWS_REGION"
+            kubectl get nodes
+
+            kubectl delete svc --all-namespaces --field-selector spec.type=LoadBalancer --all --wait=true
+            kubectl delete ingress --all --all-namespaces --wait=true
+
+            echo "Waiting for AWS to finish releasing Load

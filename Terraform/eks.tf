@@ -12,12 +12,13 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  # Work nodes (Managed Node Groups) - As freetier, we will use a single node group with 2 nodes
+  # Worker nodes (Managed Node Groups) - bumped to t3.small to fit the
+  # observability stack (Prometheus + Grafana) alongside the application
   eks_managed_node_groups = {
     k8s_nodes = {
-      instance_types = ["t3.micro"] 
+      instance_types = ["t2.micro", "t3.micro", "t3.small"] # t2.micro is the free tier, but t3.micro/small are better for Prometheus/Grafana
 
-    # Forcing static size
+      # Forcing static size
       min_size     = 2
       max_size     = 2
       desired_size = 2
