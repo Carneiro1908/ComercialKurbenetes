@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "eks_cluster_name" {
   description = "The name of the EKS cluster"
   type        = string
-  default     = module.eks.cluster_name
+  default     = "eks-commercial-study"
 }
 
 variable "account_id" {
