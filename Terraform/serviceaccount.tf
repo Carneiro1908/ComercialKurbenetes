@@ -5,7 +5,7 @@ resource "kubernetes_namespace_v1" "prometheus" {
 resource "kubernetes_service_account" "amp_ingest" {
   metadata {
     name      = "amp-ingest"
-    namespace = kubernetes_namespace.prometheus.metadata[0].name
+    namespace = kubernetes_namespace_v1.prometheus.metadata[0].name
     annotations = {
       "eks.amazonaws.com/role-arn" = aws_iam_role.amp_ingest.arn
     }
@@ -16,7 +16,7 @@ resource "helm_release" "kube_prometheus_stack" {
   name       = "kube-prometheus-stack"
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
-  namespace  = kubernetes_namespace.prometheus.metadata[0].name
+  namespace  = kubernetes_namespace_v1.prometheus.metadata[0].name
   version    = "58.2.1"
 
   values = [
