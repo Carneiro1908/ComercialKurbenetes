@@ -409,6 +409,17 @@ resource "aws_iam_policy" "github_actions_observability_policy" {
           "grafana:UpdatePermissions",
           "grafana:DescribePermissions"
         ]
+      },
+      {
+        Sid      = "AMPLoggingConfig"
+        Effect   = "Allow"
+        Resource = "*"
+        Action = [
+          "aps:DescribeLoggingConfiguration",
+          "aps:CreateLoggingConfiguration",
+          "aps:UpdateLoggingConfiguration",
+          "aps:DeleteLoggingConfiguration"
+        ]
       }
     ]
   })
@@ -418,6 +429,8 @@ resource "aws_iam_role_policy_attachment" "github_actions_observability_attachme
   role       = aws_iam_role.github_actions_infra_role.name
   policy_arn = aws_iam_policy.github_actions_observability_policy.arn
 }
+
+
 
 # Cleanup permissions for temporary network resources, load balancers, and identity center lookups.
 resource "aws_iam_policy" "github_actions_cleanup_policy" {
