@@ -252,7 +252,7 @@ resource "aws_iam_policy" "github_actions_state_policy" {
       {
         Sid      = "DynamoDBLocking"
         Effect   = "Allow"
-        Resource = "arn:aws:dynamodb:eu-north-1:*:table/comercial-k8s-terraform-locks"
+        Resource = "arn:aws:dynamodb:eu-central-1:*:table/comercial-k8s-terraform-locks"
         Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",

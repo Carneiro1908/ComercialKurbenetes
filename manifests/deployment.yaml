@@ -17,7 +17,7 @@ spec:
       containers:
         - name: my-app
           # Image is overwritten by the CI/CD pipeline (sed command in workflow.yaml)
-          image: 547320736290.dkr.ecr.eu-north-1.amazonaws.com/my-app:latest
+          image: 547320736290.dkr.ecr.eu-central-1.amazonaws.com/my-app:latest
           ports:
             - containerPort: 8000 # 
           env:

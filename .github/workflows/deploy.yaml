@@ -5,7 +5,7 @@ on:
     
 
 env:
-  AWS_REGION: eu-north-1
+  AWS_REGION: eu-central-1
   ECR_REPOSITORY: comercial-k8s-apps
   EKS_CLUSTER_NAME: eks-commercial-study
   IMAGE_TAG: ${{ github.sha }}
