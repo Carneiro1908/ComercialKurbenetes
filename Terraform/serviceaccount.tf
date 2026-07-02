@@ -14,7 +14,7 @@ resource "helm_release" "kube_prometheus_stack" {
   # Longer timeout: on t3.micro/t3.small nodes, pulling and starting all
   # the stack's pods (Prometheus, Grafana, Alertmanager, exporters) can
   # take longer than the Helm provider's default timeout
-  timeout = 600
+  timeout = 900
 
   values = [
     yamlencode({
@@ -43,6 +43,15 @@ resource "helm_release" "kube_prometheus_stack" {
       alertmanager = {
         enabled = false
       }
+
+      kubeStateMetrics = { enabled = true }   
+        nodeExporter     = { enabled = true }   
+        prometheusOperator = {
+          resources = {
+            requests = { cpu = "50m", memory = "128Mi" }
+            limits   = { cpu = "100m", memory = "256Mi" }
+          }
+        }
     })
   ]
 

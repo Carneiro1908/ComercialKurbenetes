@@ -16,7 +16,7 @@ module "eks" {
   # observability stack (Prometheus + Grafana) alongside the application
   eks_managed_node_groups = {
     k8s_nodes = {
-      instance_types = ["t2.micro", "t3.micro", "t3.small"] # t2.micro is the free tier, but t3.micro/small are better for Prometheus/Grafana
+      instance_types = ["t3.small"] # t2.micro is the free tier, but t3.micro/small are better for Prometheus/Grafana
 
       # Forcing static size
       min_size     = 2

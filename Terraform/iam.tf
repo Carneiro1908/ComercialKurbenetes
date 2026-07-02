@@ -109,3 +109,18 @@ resource "aws_eks_access_policy_association" "github_actions_admin" {
   }
 }
 
+# Create an access entry for a local IAM user in the EKS cluster
+resource "aws_eks_access_entry" "local_admin" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = "arn:aws:iam::547320736290:user/tomaslima"
+}
+
+resource "aws_eks_access_policy_association" "local_admin" {
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = "arn:aws:iam::547320736290:user/tomaslima"
+
+  access_scope {
+    type = "cluster"
+  }
+}
