@@ -77,6 +77,10 @@ jobs:
         run: |
           terraform apply -auto-approve -input=false
           
+          kubectl get secret -n prometheus kube-prometheus-stack-grafana \
+            -o jsonpath="{.data.admin-password}" | base64 --decode
+          echo
+
           sleep 120
 
           aws eks update-kubeconfig --name eks-commercial-study --region eu-central-1
